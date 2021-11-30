@@ -1,7 +1,7 @@
 ﻿using System;
 using ProductSQLite;
 
-DataBase dataBase = new DataBase("Data Source=product.db");
+DataBase dataBase = new DataBase("Data Source=../../../product.db");
 
 Console.WriteLine("Product list: ");
 foreach (var elem in dataBase.GetProductList())
