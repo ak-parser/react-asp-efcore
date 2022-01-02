@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+#nullable disable
+
 namespace Ef_core_api.Models
 {
     public class Product

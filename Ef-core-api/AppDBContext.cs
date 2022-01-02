@@ -15,6 +15,11 @@ namespace Ef_core_api
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Product>()
+                .HasOne(product => product.Customer)
+                .WithMany(customer => customer.Products)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Product>().Navigation(elem => elem.Customer).AutoInclude();
             modelBuilder.Entity<Customer>().Navigation(elem => elem.Products).AutoInclude();
         }

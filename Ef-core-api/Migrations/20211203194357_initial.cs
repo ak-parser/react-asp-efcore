@@ -33,7 +33,7 @@ namespace Ef_core_api.Migrations
                     Price = table.Column<double>(type: "REAL", nullable: false),
                     Weight = table.Column<double>(type: "REAL", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CustomerId = table.Column<int>(type: "INTEGER", nullable: false)
+                    CustomerId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
