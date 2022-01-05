@@ -10,7 +10,7 @@ export  function DeleteCustomer(props) {
         event.preventDefault();
         setModal(!modal);
 
-        const url = 'https://localhost:44415/api/customers/' + props.username;
+        const url = 'api/customers/' + props.username;
         await fetch(url, {
             method: 'DELETE'
         });

@@ -10,7 +10,7 @@ export  function DeleteProduct(props) {
         event.preventDefault();
         setModal(!modal);
 
-        const url = 'https://localhost:44415/api/products/' + props.id;
+        const url = 'api/products/' + props.id;
         await fetch(url, {
             method: 'DELETE'
         });

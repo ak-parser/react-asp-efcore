@@ -17,7 +17,7 @@ export  function ChangeProduct(props) {
         event.preventDefault();
         setModal(!modal);
 
-        const url = 'https://localhost:44415/api/products/' + props.product.id;
+        const url = 'api/products/' + props.product.id;
         const productToSend = {
             'id': props.product.id,
             'name': name,

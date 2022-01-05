@@ -10,7 +10,7 @@ export  function ChangeCustomer(props) {
         event.preventDefault();
         setModal(!modal);
 
-        const url = 'https://localhost:44415/api/customers/' + props.customer.username;
+        const url = 'api/customers/' + props.customer.username;
         const productToSend = {
             'username': props.customer.username,
             'password': password

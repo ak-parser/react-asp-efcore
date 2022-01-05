@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 
 export function FindCustomer(props) {
     useEffect(() => {
-        fetch("https://localhost:44415/api/customers/exists/" + props.username)
+        fetch("api/customers/exists/" + props.username)
             .then(response => response.json())
             .then(data => {
                 if (props.validOnTrue) {

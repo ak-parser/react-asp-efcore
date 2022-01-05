@@ -13,7 +13,7 @@ export  function AddCustomer(props) {
         event.preventDefault();
         setModal(!modal);
 
-        const url = 'https://localhost:44415/api/customers';
+        const url = 'api/customers';
         const form = document.forms['customer'];
         const customerToSend = {
             "username": username,

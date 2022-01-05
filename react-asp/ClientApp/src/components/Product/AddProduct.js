@@ -13,7 +13,7 @@ export  function AddProduct(props) {
         event.preventDefault();
         setModal(!modal);
 
-        const url = 'https://localhost:44415/api/products';
+        const url = 'api/products';
         const form = document.forms['product'];
         const productToSend = {
             name: form['name'].value,
