@@ -1,0 +1,24 @@
+form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+}
+
+label {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.modal-button-add {
+    border: none;
+    background: url('https://localhost:44415/add-icon.png') no-repeat center;
+    background-size: cover;
+    width: calc(2rem + 2vw);
+    height: calc(2rem + 2vw);
+}
+
+input:invalid {
+    outline-color: red;
+    border-color: red;
+}

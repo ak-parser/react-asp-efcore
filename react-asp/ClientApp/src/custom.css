@@ -1,0 +1,22 @@
+/* Provide sufficient contrast against white background */
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: #0366d6;
+}
+
+code {
+  color: #E01A76;
+}
+
+button {
+  border-radius: 1rem;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}

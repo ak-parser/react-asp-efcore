@@ -1,0 +1,26 @@
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2%;
+}
+
+.table-operation {
+    width: 7%;
+}
+
+.table-operation div {
+    display: flex;
+    justify-content: space-around;
+}
+
+.table-operation img {
+    width: 40%;
+    padding: 0.2rem;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.accordion-button{
+    padding: 0.7rem 1.25rem;
+}
