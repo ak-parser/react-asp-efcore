@@ -2,6 +2,7 @@ using react_asp;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using react_asp.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDBContext>();
 
+builder.Services.AddScoped<IRepository, ProductRepository>();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddSwaggerGen();

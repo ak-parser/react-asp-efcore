@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using react_asp;
 using react_asp.Models;
+using react_asp.Repository;
 
 namespace react_asp.Controllers
 {
@@ -15,30 +16,28 @@ namespace react_asp.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly AppDBContext _context;
+        private readonly IRepository _repository;
 
-        public ProductsController(AppDBContext context)
+        public ProductsController(IRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            return await _repository.GetList();
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _repository.GetItem(id);
 
             if (product == null)
-            {
                 return NotFound();
-            }
 
             return product;
         }
@@ -53,15 +52,15 @@ namespace react_asp.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
+            _repository.Update(product);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductExists(id))
+                if (!(await ProductExists(id)))
                 {
                     return NotFound();
                 }
@@ -79,31 +78,38 @@ namespace react_asp.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            if (product == null)
+                return NotFound();
 
-            return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            if (ModelState.IsValid)
+            {
+                _repository.Create(product);
+                await _repository.Save();
+
+                return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            }
+            return ValidationProblem();
         }
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _repository.GetItem(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            _repository.Delete(product);
+            await _repository.Save();
 
             return NoContent();
         }
 
-        private bool ProductExists(int id)
+        private async Task<bool> ProductExists(int id)
         {
-            return _context.Products.Any(e => e.Id == id);
+            return await _repository.ProductExists(id);
         }
     }
 }
