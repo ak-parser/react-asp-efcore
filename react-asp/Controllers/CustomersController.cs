@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using react_asp;
@@ -11,6 +14,7 @@ using react_asp.Models;
 
 namespace react_asp.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomersController : ControllerBase
@@ -23,6 +27,7 @@ namespace react_asp.Controllers
         }
 
         // GET: api/Customers
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
         {
@@ -30,122 +35,49 @@ namespace react_asp.Controllers
         }
 
         // GET: api/Customers/user
+        [Authorize(Roles = "Admin")]
         [HttpGet("{username}")]
         public async Task<ActionResult<Customer>> GetCustomer(string username)
         {
             var customer = await _context.Customers.FindAsync(username);
 
             if (customer == null)
-            {
                 return NotFound();
-            }
 
             return customer;
         }
 
-        // PUT: api/Customers/user
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{username}")]
-        public async Task<IActionResult> PutCustomer(string username, Customer customer)
+        // Patch: api/Customers/user
+        [HttpPatch("{username}")]
+        public async Task<IActionResult> PatchCustomer(string username, [FromBody] JsonPatchDocument<Customer> patchCustomer)
         {
-            if (username != customer.Username)
+            var roleOperation = patchCustomer.Operations.Find(patch => patch.path == "/role");
+
+            if ((roleOperation != null &&
+                (HttpContext.User.Identity as ClaimsIdentity).Claims.Any(claim => claim.Type == ClaimTypes.Role && claim.Value == Roles.Admin.ToString()))
+                ||
+                (roleOperation == null &&
+                username == (HttpContext.User.Identity as ClaimsIdentity).Claims.FirstOrDefault().Value))
             {
-                return BadRequest();
-            }
+                if (roleOperation != null && !Enum.IsDefined(typeof(Roles), roleOperation.value))
+                    return BadRequest(new { error = "Role is invalid" });
 
-            /*
-            var existingCustomer = _context.Customers
-                .Where(elem => elem.Username == customer.Username)
-                .Include(elem => elem.Products)
-                .SingleOrDefault();
-
-            if (existingCustomer != null)
-            {
-                // Update parent
-                _context.Entry(existingCustomer).CurrentValues.SetValues(customer);
-
-                // Delete children
-                foreach (var existingProduct in existingCustomer.Products.ToList())
-                {
-                    if (!customer.Products.Any(elem => elem.Id == existingProduct.Id))
-                        _context.Products.Remove(existingProduct);
-                }
-
-                // Update and Insert children
-                foreach (var childModel in model.Children)
-                {
-                    var existingChild = existingParent.Children
-                        .Where(c => c.Id == childModel.Id && c.Id != default(int))
-                        .SingleOrDefault();
-
-                    if (existingChild != null)
-                        // Update child
-                        _dbContext.Entry(existingChild).CurrentValues.SetValues(childModel);
-                    else
-                    {
-                        // Insert child
-                        var newChild = new Child
-                        {
-                            Data = childModel.Data,
-                            //...
-                        };
-                        existingParent.Children.Add(newChild);
-                    }
-                }
-
-                _dbContext.SaveChanges();
-            }
-            else
-                return NotFound();
-            */
-
-            _context.Entry(customer).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CustomerExists(username))
-                {
+                var customer = await _context.Customers.FindAsync(username);
+                if (customer == null)
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
-        }
+                patchCustomer.ApplyTo(customer);
 
-        // POST: api/Customers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
-        {
-            _context.Customers.Add(customer);
-            try
-            {
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (CustomerExists(customer.Username))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+
+                return NoContent();
             }
 
-            return CreatedAtAction("GetCustomer", new { id = customer.Username }, customer);
+            return Forbid();
         }
 
         // DELETE: api/Customers/user
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{username}")]
         public async Task<IActionResult> DeleteCustomer(string username)
         {
@@ -165,11 +97,10 @@ namespace react_asp.Controllers
         [HttpGet("exists/{username}")]
         public async Task<ActionResult<bool>> CheckIfExists(string username)
         {
-            bool flag = false;
             if (CustomerExists(username))
-                flag = true;
+                return true;
 
-            return flag;
+            return false;
         }
 
         private bool CustomerExists(string username)
