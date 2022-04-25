@@ -1,14 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-export class Home extends Component {
-  static displayName = Home.name;
-
-  render () {
-    return (
+export function Home() {
+  return (
+    <>
       <header>
-          <h1>Hello!</h1>
-          You are using store manager system
+        <h1>Hello!</h1>
+        You are using store manager system
       </header>
-    );
-  }
+    </>
+  );
 }

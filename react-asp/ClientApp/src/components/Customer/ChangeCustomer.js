@@ -1,49 +1,56 @@
-import React, {useState} from "react";
-import {ModalWindow} from "../ModalWindow";
+import React, { useState } from "react";
+import { ModalWindow } from "../ModalWindow";
 import '../Operations.css'
 
-export  function ChangeCustomer(props) {
-    const [modal, setModal] = useState(false);
-    const [password, setPassword] = useState(props.customer.password);
+export function ChangeCustomer(props) {
+  const [modal, setModal] = useState(false);
+  const [role, setRole] = useState(props.customer.role);
 
-    const onSubmit = async (event) => {
-        event.preventDefault();
-        setModal(!modal);
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    setModal(!modal);
 
-        const url = 'api/customers/' + props.customer.username;
-        const productToSend = {
-            'username': props.customer.username,
-            'password': password
-        };
+    const url = "api/customers/" + props.customer.username;
+    const productToSend = [
+      {
+        "op": "replace",
+        "path": "/role",
+        "value": parseInt(role),
+      }
+    ];
 
-        await fetch(url, {
-            method: 'PUT',
-            body: JSON.stringify(productToSend),
-            headers: {'Content-type': 'application/json'}
-        });
-        props.onUpdate();
-    }
+    await fetch(url, {
+      method: "PATCH",
+      body: JSON.stringify(productToSend),
+      headers: { "Content-type": "application/json" }
+    });
+    props.onUpdate();
+  }
 
-    const onSetShowModal = () => {
-        setModal(!modal);
-    }
+  const onSetShowModal = () => {
+    setModal(!modal);
+  }
 
-    return (
-        <>
-            <img src="/change-icon.png" onClick={onSetShowModal} alt="Change"/>
-            <ModalWindow show={modal} onHide={onSetShowModal} header={"Change customer"}>
-                <form name="product" autoComplete onSubmit={(event) => onSubmit(event)}>
-                    <label>
-                        Username
-                        <input value={props.customer.username} name="username" type="text" disabled/>
-                    </label>
-                    <label>
-                        Password
-                        <input value={password} name="password" type="password" required minLength={6} onChange={(e) => setPassword(e.target.value)}/>
-                    </label>
-                    <button type="submit">Change</button>
-                </form>
-            </ModalWindow>
-        </>
-    )
+  return (
+    <>
+      <img src="/change-icon.png" onClick={onSetShowModal} alt="Change" />
+      <ModalWindow show={modal} onHide={onSetShowModal} header={"Change customer"}>
+        <form name="product" autoComplete={true} onSubmit={(event) => onSubmit(event)}>
+          <label>
+            Username
+            <input value={props.customer.username} name="username" type="text" disabled />
+          </label>
+          <label>
+            Role
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="0">User</option>
+              <option value="1">Admin</option>
+              <option value="2">Manager</option>
+            </select>
+          </label>
+          <button type="submit">Change</button>
+        </form>
+      </ModalWindow>
+    </>
+  )
 }

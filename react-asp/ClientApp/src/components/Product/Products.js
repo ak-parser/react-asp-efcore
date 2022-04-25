@@ -1,77 +1,91 @@
-import React, { Component } from 'react';
-import {AddProduct} from "./AddProduct";
-import {DeleteProduct} from './DeleteProduct'
-import {ChangeProduct} from "./ChangeProduct";
+import React, { useEffect, useState } from 'react';
+import { AddProduct } from "./AddProduct";
+import { DeleteProduct } from './DeleteProduct'
+import { ChangeProduct } from "./ChangeProduct";
+import { useLocation } from 'react-router';
+import { CustomError } from '../errors/CustomError';
+import { useErrorHandler } from 'react-error-boundary'
 import '../Manager.css'
+import { Spinner } from 'react-bootstrap';
 
-export class Products extends Component {
-    static displayName = Products.name;
+export const renderProductsTable = (products, populateProductsData) => {
+  return (
+    <table className='table table-striped table-hover' aria-labelledby="tableLabel">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Weight</th>
+          <th>Production date</th>
+          <th>Customer</th>
+          <th>Manage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {products.map((product, index) =>
+          <tr key={product.id}>
+            <td>{index + 1}</td>
+            <td>{product.name}</td>
+            <td>{product.price}</td>
+            <td>{product.weight}</td>
+            <td>
+              {product.createDate.split("T").join(" ")}</td>
+            <td>{product.customerUsername}</td>
+            <td className="table-operation">
+              <div>
+                <DeleteProduct id={product.id} onUpdate={populateProductsData}>{ }</DeleteProduct>
+                <ChangeProduct product={product} onUpdate={populateProductsData}>{ }</ChangeProduct>
+              </div>
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
+}
 
-    constructor(props) {
-        super(props);
-        this.state = { products: [], loading: true};
+export function Products() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const errorHandler = useErrorHandler();
+
+  const populateProductsData = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch("api/products");
+      if (!response.ok) {
+        throw new CustomError(response.status, location.pathname, "Fetch error");
+      }
+
+      const data = await response.json();
+      setProducts(data);
     }
-
-    componentDidMount() {
-        this.populateProductsData();
+    catch (err) {
+      errorHandler(err);
     }
-
-    static renderProductsTable(products, populateProductsData) {
-        return (
-            <table className='table table-striped table-hover' aria-labelledby="tableLabel">
-                <thead>
-                <tr>
-                    <th>№</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Weight</th>
-                    <th>Production date</th>
-                    <th>Customer</th>
-                    <th>Manage</th>
-                </tr>
-                </thead>
-                <tbody>
-                {products.map((product, index) =>
-                    <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{product.name}</td>
-                        <td>{product.price}</td>
-                        <td>{product.weight}</td>
-                        <td>
-                            {product.createDate.split("T").join(" ")}</td>
-                        <td>{product.customerUsername}</td>
-                        <td className="table-operation">
-                            <div>
-                                <DeleteProduct id={product.id} onUpdate={populateProductsData}>{}</DeleteProduct>
-                                <ChangeProduct product={product} onUpdate={populateProductsData}>{}</ChangeProduct>
-                            </div>
-                        </td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
-        );
+    finally {
+      setLoading(false);
     }
+  }
 
-    render() {
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : Products.renderProductsTable(this.state.products, () => this.populateProductsData());
+  useEffect(() => {
+    populateProductsData();
+  }, []);
 
-        return (
-            <main>
-                <section className="product-header">
-                    <h1 id="tableLabel">Products</h1>
-                    <AddProduct onUpdate={() => this.populateProductsData()}>{}</AddProduct>
-                </section>
-                {contents}
-            </main>
-        );
-    }
+  let contents = loading
+    ? <Spinner animation="border" role="status" />
+    : renderProductsTable(products, () => populateProductsData());
 
-    async populateProductsData() {
-        const response = await fetch('api/products');
-        const data = await response.json();
-        this.setState({ products: data, loading: false });
-    }
+  return (
+    <main>
+      <section className="product-header">
+        <h1 id="tableLabel">Products</h1>
+        <AddProduct onUpdate={populateProductsData}>{ }</AddProduct>
+      </section>
+      {contents}
+    </main>
+  );
 }

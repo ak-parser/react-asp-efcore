@@ -1,18 +1,15 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Container } from 'reactstrap';
+import { SignIn } from '../auth/SignIn';
 import { NavMenu } from './NavMenu';
 
-export class Layout extends Component {
-  static displayName = Layout.name;
-
-  render () {
-    return (
-      <>
-        <NavMenu />
-        <Container>
-          {this.props.children}
-        </Container>
-      </>
-    );
-  }
+export function Layout({ username, onSignOut, children }) {
+  return (
+    <>
+      <NavMenu username={username} onSignOut={onSignOut} />
+      <Container>
+        {children}
+      </Container>
+    </>
+  );
 }

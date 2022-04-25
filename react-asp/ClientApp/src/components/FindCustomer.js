@@ -1,22 +1,22 @@
-import React, {useEffect} from "react";
+import { useEffect } from "react";
 
-export function FindCustomer(props) {
-    useEffect(() => {
-        fetch("api/customers/exists/" + props.username)
-            .then(response => response.json())
-            .then(data => {
-                if (props.validOnTrue) {
-                    data === true ?
-                        props.usernameInput.current.setCustomValidity("") :
-                        props.usernameInput.current.setCustomValidity("User does not exist");
-                }
-                else {
-                    data === true ?
-                        props.usernameInput.current.setCustomValidity("User already exists") :
-                        props.usernameInput.current.setCustomValidity("");
-                }
-            });
-    }, [props.username]);
+export function FindCustomer({ validOnTrue, username, usernameInput }) {
+  useEffect(() => {
+    fetch("api/customers/exists/" + username)
+      .then(response => response.json())
+      .then(data => {
+        if (validOnTrue) {
+          data ?
+            usernameInput.current.setCustomValidity("") :
+            usernameInput.current.setCustomValidity("User does not exist");
+        }
+        else {
+          data ?
+            usernameInput.current.setCustomValidity("User already exists") :
+            usernameInput.current.setCustomValidity("");
+        }
+      });
+  }, [username, validOnTrue, usernameInput]);
 
-    return null;
+  return null;
 }
