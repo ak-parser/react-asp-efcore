@@ -95,7 +95,7 @@ namespace react_asp.Controllers
 
 		// GET: api/Customers/exists/user
 		[HttpGet("exists/{username}")]
-		public async Task<ActionResult<bool>> CheckIfExists(string username)
+		public ActionResult<bool> CheckIfExists(string username)
 		{
 			if (CustomerExists(username))
 			{
